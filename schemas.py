@@ -11,10 +11,10 @@ Model name is converted to lowercase for the collection name:
 - BlogPost -> "blogs" collection
 """
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, EmailStr
+from typing import Optional, Literal
 
-# Example schemas (replace with your own):
+# Example schemas (you can keep these if useful):
 
 class User(BaseModel):
     """
@@ -38,11 +38,15 @@ class Product(BaseModel):
     category: str = Field(..., description="Product category")
     in_stock: bool = Field(True, description="Whether product is in stock")
 
-# Add your own schemas here:
-# --------------------------------------------------
+# Membership schemas for Bebahan site
 
-# Note: The Flames database viewer will automatically:
-# 1. Read these schemas from GET /schema endpoint
-# 2. Use them for document validation when creating/editing
-# 3. Handle all database operations (CRUD) directly
-# 4. You don't need to create any database endpoints!
+Tier = Literal["bronze", "silver", "gold"]
+
+class Member(BaseModel):
+    """Bebahan membership records. Collection name: "member"""
+    email: EmailStr = Field(..., description="Member email address")
+    tier: Tier = Field(..., description="Membership tier: bronze($4.99), silver($9.99), gold($24.99)")
+    status: Literal["active", "incomplete", "canceled", "past_due"] = Field("incomplete")
+    stripe_customer_id: Optional[str] = None
+    stripe_subscription_id: Optional[str] = None
+    username: Optional[str] = Field(None, description="Optional display name")
